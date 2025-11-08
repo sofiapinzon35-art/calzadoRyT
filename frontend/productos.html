@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Productos - Calzado RyT</title>
+  <style>
+    :root {
+      --accent: #2b6cb0;
+      --accent-hover: #2557a7;
+      --success: #38a169;
+      --danger: #e53e3e;
+      --muted: #6b7280;
+      --border: #e2e8f0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f7fafc;
+      color: #1a202c;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--accent) 0%, #1e40af 100%);
+      color: white;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    header h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    header .subtitle {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .back-link {
+      display: inline-block;
+      color: white;
+      text-decoration: none;
+      margin-top: 12px;
+      font-size: 14px;
+      opacity: 0.9;
+      transition: opacity 0.2s;
+    }
+
+    .back-link:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 24px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 32px;
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #4a5568;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .required {
+      color: #e53e3e;
+    }
+
+    input, select, textarea {
+      padding: 12px 14px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      background: #f7fafc;
+      font-family: inherit;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.1);
+    }
+
+    input::placeholder {
+      color: #a0aec0;
+    }
+
+    .btn {
+      padding: 14px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent) 0%, #1e40af 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(43, 108, 176, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(43, 108, 176, 0.4);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--accent);
+      border: 2px solid var(--accent);
+    }
+
+    .btn-secondary:hover {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .success-message {
+      background: #c6f6d5;
+      color: #22543d;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+      animation: slideDown 0.3s ease-out;
+      border-left: 4px solid #38a169;
+    }
+
+    .error-message {
+      background: #fed7d7;
+      color: #742a2a;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+      animation: slideDown 0.3s ease-out;
+      border-left: 4px solid #e53e3e;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .info-box {
+      background: #bee3f8;
+      color: #2c5282;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      font-size: 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      border-left: 4px solid #3182ce;
+    }
+
+    .info-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    /* Loading state */
+    .btn-loading {
+      pointer-events: none;
+      opacity: 0.7;
+      position: relative;
+    }
+
+    .btn-loading::after {
+      content: "";
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 16px;
+        margin: 24px auto;
+      }
+
+      .card {
+        padding: 24px 20px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .btn-group {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      header h1 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>📦 Gestión de Productos</h1>
+    <div class="subtitle">Registra nuevos productos en el inventario</div>
+    <a href="dashboard.html" class="back-link">← Volver al menú</a>
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <h2 class="card-title">
+        <span>➕</span>
+        Registrar Nuevo Producto
+      </h2>
+
+      <div class="info-box">
+        <span class="info-icon">💡</span>
+        <div>
+          <strong>Tip:</strong> Los productos registrados aquí se agregarán automáticamente al inventario. Asegúrate de completar todos los campos requeridos.
+        </div>
+      </div>
+
+      <div id="successMessage" class="success-message"></div>
+      <div id="errorMessage" class="error-message"></div>
+
+      <form id="formProducto">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>
+              Nombre del producto <span class="required">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="nombre" 
+              placeholder="Ej: Zapatos deportivos" 
+              required
+              autocomplete="off"
+            >
+          </div>
+
+          <div class="form-group">
+            <label>
+              Descripción <span class="required">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="descripcion" 
+              placeholder="Ej: Nike Air Max" 
+              required
+              autocomplete="off"
+            >
+          </div>
+
+          <div class="form-group">
+            <label>
+              Talla <span class="required">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="talla" 
+              placeholder="Ej: 42" 
+              required
+              autocomplete="off"
+            >
+          </div>
+
+          <div class="form-group">
+            <label>
+              Color <span class="required">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="color" 
+              placeholder="Ej: Negro" 
+              required
+              autocomplete="off"
+            >
+          </div>
+
+          <div class="form-group">
+            <label>
+              Categoría <span class="required">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="categoria" 
+              placeholder="Ej: Deportivo" 
+              required
+              autocomplete="off"
+            >
+          </div>
+
+          <div class="form-group">
+            <label>
+              Precio <span class="required">*</span>
+            </label>
+            <input 
+              type="number" 
+              id="precio" 
+              placeholder="0.00" 
+              step="0.01"
+              min="0"
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label>
+              Cantidad en stock <span class="required">*</span>
+            </label>
+            <input 
+              type="number" 
+              id="cantidad" 
+              placeholder="0" 
+              min="0"
+              required
+            >
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <button type="submit" class="btn btn-primary" id="btnSubmit">
+            ✓ Registrar Producto
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="limpiarFormulario()">
+            ✕ Limpiar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "http://localhost:3000/api/productos";
+    const successMessageEl = document.getElementById("successMessage");
+    const errorMessageEl = document.getElementById("errorMessage");
+    const btnSubmit = document.getElementById("btnSubmit");
+
+    function showSuccess(message) {
+      successMessageEl.textContent = message;
+      successMessageEl.style.display = "block";
+      errorMessageEl.style.display = "none";
+      
+      setTimeout(() => {
+        successMessageEl.style.display = "none";
+      }, 5000);
+    }
+
+    function showError(message) {
+      errorMessageEl.textContent = message;
+      errorMessageEl.style.display = "block";
+      successMessageEl.style.display = "none";
+      
+      setTimeout(() => {
+        errorMessageEl.style.display = "none";
+      }, 5000);
+    }
+
+    document.getElementById("formProducto").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      await agregarProducto();
+    });
+
+    async function agregarProducto() {
+      // Validar campos
+      const nombre = document.getElementById("nombre").value.trim();
+      const descripcion = document.getElementById("descripcion").value.trim();
+      const talla = document.getElementById("talla").value.trim();
+      const color = document.getElementById("color").value.trim();
+      const categoria = document.getElementById("categoria").value.trim();
+      const precio = parseFloat(document.getElementById("precio").value);
+      const cantidad = parseInt(document.getElementById("cantidad").value);
+
+      if (!nombre || !descripcion || !talla || !color || !categoria) {
+        showError("⚠️ Por favor, completa todos los campos requeridos");
+        return;
+      }
+
+      if (precio <= 0) {
+        showError("⚠️ El precio debe ser mayor a 0");
+        return;
+      }
+
+      if (cantidad < 0) {
+        showError("⚠️ La cantidad no puede ser negativa");
+        return;
+      }
+
+      const producto = {
+        nombre,
+        descripcion,
+        talla,
+        color,
+        categoria,
+        precio,
+        cantidad
+      };
+
+      // Mostrar estado de carga
+      btnSubmit.classList.add("btn-loading");
+      btnSubmit.textContent = "Registrando...";
+      btnSubmit.disabled = true;
+
+      try {
+        const respuesta = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(producto)
+        });
+
+        const data = await respuesta.json();
+
+        if (respuesta.ok) {
+          showSuccess(`✅ Producto "${nombre}" registrado correctamente en el inventario`);
+          limpiarFormulario();
+        } else {
+          showError(data.error || "⚠️ Error al registrar el producto");
+        }
+      } catch (error) {
+        console.error("Error al guardar:", error);
+        showError("❌ Error de conexión con el servidor. Verifica que el servidor esté activo.");
+      } finally {
+        // Restaurar botón
+        btnSubmit.classList.remove("btn-loading");
+        btnSubmit.textContent = "✓ Registrar Producto";
+        btnSubmit.disabled = false;
+      }
+    }
+
+    function limpiarFormulario() {
+      document.getElementById("formProducto").reset();
+      successMessageEl.style.display = "none";
+      errorMessageEl.style.display = "none";
+      document.getElementById("nombre").focus();
+    }
+
+    // Limpiar mensajes al escribir
+    document.querySelectorAll('input').forEach(input => {
+      input.addEventListener('input', () => {
+        successMessageEl.style.display = "none";
+        errorMessageEl.style.display = "none";
+      });
+    });
+
+    // Focus en el primer campo al cargar
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById("nombre").focus();
+    });
+  </script>
+
+</body>
+</html>
+
+
+
+
+

@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Pedidos - Calzado RyT</title>
+  <style>
+    :root {
+      --accent: #2b6cb0;
+      --danger: #e53e3e;
+      --success: #38a169;
+      --warning: #dd6b20;
+      --info: #3182ce;
+      --muted: #6b7280;
+      --border: #e2e8f0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f7fafc;
+      color: #1a202c;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--accent) 0%, #1e40af 100%);
+      color: white;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    header h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    header .subtitle {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .back-link {
+      display: inline-block;
+      color: white;
+      text-decoration: none;
+      margin-top: 12px;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .back-link:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 40px auto;
+      padding: 0 24px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 32px;
+      margin-bottom: 32px;
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #4a5568;
+      margin-bottom: 8px;
+    }
+
+    input, select, textarea {
+      padding: 12px 14px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      background: #f7fafc;
+      font-family: inherit;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .productos-section {
+      background: #f7fafc;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+
+    .section-label {
+      font-size: 16px;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .producto-item {
+      display: grid;
+      grid-template-columns: 2fr 1fr auto;
+      gap: 12px;
+      margin-bottom: 12px;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent) 0%, #1e40af 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(43, 108, 176, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(43, 108, 176, 0.4);
+    }
+
+    .btn-secondary {
+      background: #718096;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #4a5568;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #c53030;
+    }
+
+    .btn-sm {
+      padding: 8px 14px;
+      font-size: 13px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    thead {
+      background: #f7fafc;
+    }
+
+    th {
+      text-align: left;
+      padding: 14px 16px;
+      font-weight: 600;
+      color: #4a5568;
+      border-bottom: 2px solid var(--border);
+    }
+
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    tbody tr {
+      transition: background-color 0.2s;
+    }
+
+    tbody tr:hover {
+      background: #f7fafc;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .estado-pendiente { background: #fef3c7; color: #92400e; }
+    .estado-en-proceso { background: #dbeafe; color: #1e40af; }
+    .estado-listo { background: #e0e7ff; color: #3730a3; }
+    .estado-entregado { background: #d1fae5; color: #065f46; }
+    .estado-cancelado { background: #e5e7eb; color: #374151; }
+
+    .badge-canal {
+      background: #e0e7ff;
+      color: #3730a3;
+      margin-left: 8px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+
+    .empty-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 16px;
+        margin: 24px auto;
+      }
+
+      .card {
+        padding: 24px 20px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .producto-item {
+        grid-template-columns: 1fr;
+      }
+
+      .btn-group {
+        flex-direction: column;
+      }
+
+      header h1 {
+        font-size: 24px;
+      }
+
+      table {
+        font-size: 13px;
+      }
+
+      th, td {
+        padding: 10px 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>📋 Gestión de Pedidos</h1>
+    <div class="subtitle">Gestiona pedidos con seguimiento completo</div>
+    <a href="dashboard.html" class="back-link">← Volver al menú</a>
+  </header>
+
+  <div class="container">
+    <!-- Formulario -->
+    <div class="card">
+      <h2 class="card-title">
+        <span>➕</span>
+        Crear Nuevo Pedido
+      </h2>
+
+      <form id="formPedido">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nombre del cliente</label>
+            <input type="text" id="cliente" placeholder="Ej: Carlos Martínez" required>
+          </div>
+
+          <div class="form-group">
+            <label>Canal del pedido</label>
+            <select id="canal" required>
+              <option value="">Selecciona el canal</option>
+              <option value="Instagram" selected>📱 Instagram</option>
+              <option value="WhatsApp">💬 WhatsApp</option>
+              <option value="Facebook">📘 Facebook</option>
+              <option value="Página Web">🌐 Página Web</option>
+              <option value="Tienda Física">🏬 Tienda Física</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Fecha de entrega (opcional)</label>
+            <input type="date" id="fecha_entrega">
+          </div>
+        </div>
+
+        <div class="productos-section">
+          <label class="section-label">🛒 Productos del pedido</label>
+          <div id="listaProductos"></div>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="agregarProducto()">
+            + Agregar producto
+          </button>
+        </div>
+
+        <div class="form-group">
+          <label>Observaciones (opcional)</label>
+          <textarea id="observaciones" placeholder="Notas adicionales sobre el pedido..."></textarea>
+        </div>
+
+        <div class="btn-group">
+          <button type="button" class="btn btn-primary" onclick="crearPedido()">
+            ✓ Crear Pedido
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Tabla de pedidos -->
+    <div class="card">
+      <h2 class="card-title">
+        <span>📦</span>
+        Lista de Pedidos
+      </h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>Canal</th>
+            <th>Productos</th>
+            <th>Total</th>
+            <th>Entrega</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tablaPedidos">
+          <tr>
+            <td colspan="8">
+              <div class="empty-state">
+                <div class="empty-icon">⏳</div>
+                <p>Cargando pedidos...</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "http://localhost:3000/api/pedidos";
+    const API_PRODUCTOS = "http://localhost:3000/api/productos";
+    let productosDisponibles = [];
+    let productosSeleccionados = [];
+
+    async function cargarProductos() {
+      try {
+        const respuesta = await fetch(API_PRODUCTOS);
+        productosDisponibles = await respuesta.json();
+        agregarProducto();
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+
+    function agregarProducto() {
+      const container = document.getElementById("listaProductos");
+      const index = productosSeleccionados.length;
+      
+      const div = document.createElement("div");
+      div.className = "producto-item";
+      div.id = `producto-${index}`;
+      
+      const select = document.createElement("select");
+      select.id = `select-${index}`;
+      select.required = true;
+      select.innerHTML = '<option value="">Selecciona un producto</option>';
+      
+      productosDisponibles.forEach(p => {
+        const option = document.createElement("option");
+        option.value = p.id_producto;
+        option.textContent = `${p.nombre} - ${p.descripcion} (${p.talla}, ${p.color}) - $${parseFloat(p.precio).toLocaleString()}`;
+        select.appendChild(option);
+      });
+      
+      const inputCantidad = document.createElement("input");
+      inputCantidad.type = "number";
+      inputCantidad.id = `cantidad-${index}`;
+      inputCantidad.placeholder = "Cantidad";
+      inputCantidad.min = "1";
+      inputCantidad.required = true;
+      
+      const btnEliminar = document.createElement("button");
+      btnEliminar.type = "button";
+      btnEliminar.className = "btn btn-danger btn-sm";
+      btnEliminar.textContent = "✕";
+      btnEliminar.onclick = () => eliminarProducto(index);
+      
+      div.appendChild(select);
+      div.appendChild(inputCantidad);
+      div.appendChild(btnEliminar);
+      container.appendChild(div);
+      
+      productosSeleccionados.push({ index });
+    }
+
+    function eliminarProducto(index) {
+      const elemento = document.getElementById(`producto-${index}`);
+      if (elemento) {
+        elemento.remove();
+        productosSeleccionados = productosSeleccionados.filter(p => p.index !== index);
+      }
+    }
+
+    async function crearPedido() {
+      const cliente = document.getElementById("cliente").value.trim();
+      const canal = document.getElementById("canal").value;
+      const fecha_entrega = document.getElementById("fecha_entrega").value;
+      const observaciones = document.getElementById("observaciones").value.trim();
+
+      if (!cliente || !canal) {
+        alert("⚠️ Completa el nombre del cliente y el canal");
+        return;
+      }
+
+      const productos = [];
+      for (const item of productosSeleccionados) {
+        const select = document.getElementById(`select-${item.index}`);
+        const cantidad = document.getElementById(`cantidad-${item.index}`);
+        
+        if (select && cantidad && select.value && cantidad.value) {
+          productos.push({
+            id_producto: parseInt(select.value),
+            cantidad: parseInt(cantidad.value)
+          });
+        }
+      }
+
+      if (productos.length === 0) {
+        alert("⚠️ Agrega al menos un producto al pedido");
+        return;
+      }
+
+      try {
+        const respuesta = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            cliente,
+            canal,
+            productos, 
+            fecha_entrega: fecha_entrega || null,
+            observaciones 
+          })
+        });
+
+        const data = await respuesta.json();
+
+        if (!respuesta.ok) {
+          alert("❌ " + (data.error || "Error al crear el pedido"));
+          return;
+        }
+
+        alert(`✅ Pedido #${data.id_pedido} creado correctamente\nCanal: ${canal}\nTotal: $${data.total.toLocaleString()}`);
+        document.getElementById("formPedido").reset();
+        document.getElementById("listaProductos").innerHTML = "";
+        productosSeleccionados = [];
+        cargarPedidos();
+        agregarProducto();
+      } catch (error) {
+        console.error("❌ Error:", error);
+        alert("❌ No se pudo crear el pedido");
+      }
+    }
+
+    async function cargarPedidos() {
+      try {
+        const respuesta = await fetch(API_URL);
+        const pedidos = await respuesta.json();
+
+        const tabla = document.getElementById("tablaPedidos");
+
+        if (pedidos.length === 0) {
+          tabla.innerHTML = `
+            <tr>
+              <td colspan="8">
+                <div class="empty-state">
+                  <div class="empty-icon">📋</div>
+                  <p>No hay pedidos registrados</p>
+                </div>
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        tabla.innerHTML = "";
+
+        pedidos.forEach(p => {
+          const estadoClass = `estado-${p.estado.toLowerCase().replace(' ', '-')}`;
+          const fila = `
+            <tr>
+              <td><strong>#${p.id_pedido}</strong></td>
+              <td>${p.nombre_cliente || 'Cliente #' + p.id_cliente}</td>
+              <td><span class="badge badge-canal">${p.canal || 'N/A'}</span></td>
+              <td>${p.productos || 'Sin productos'}</td>
+              <td><strong>$${parseFloat(p.total).toLocaleString()}</strong></td>
+              <td>${p.fecha_entrega ? new Date(p.fecha_entrega).toLocaleDateString() : 'No definida'}</td>
+              <td><span class="badge ${estadoClass}">${p.estado}</span></td>
+              <td>
+                ${p.estado !== 'Entregado' && p.estado !== 'Cancelado' ? 
+                  `<button class="btn btn-primary btn-sm" onclick="cambiarEstado(${p.id_pedido}, '${obtenerSiguienteEstado(p.estado)}')">
+                    → ${obtenerSiguienteEstado(p.estado)}
+                  </button>
+                  <button class="btn btn-danger btn-sm" onclick="eliminarPedido(${p.id_pedido})">Eliminar</button>` 
+                  : '-'}
+              </td>
+            </tr>
+          `;
+          tabla.innerHTML += fila;
+        });
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+
+    function obtenerSiguienteEstado(estadoActual) {
+      const flujo = {
+        'Pendiente': 'En Proceso',
+        'En Proceso': 'Listo',
+        'Listo': 'Entregado'
+      };
+      return flujo[estadoActual] || estadoActual;
+    }
+
+    async function cambiarEstado(id, nuevoEstado) {
+      if (!confirm(`¿Cambiar pedido #${id} a "${nuevoEstado}"?\n${nuevoEstado === 'Entregado' ? '\n⚠️ Esto creará una venta y descontará del inventario.' : ''}`)) return;
+
+      try {
+        const respuesta = await fetch(`${API_URL}/${id}/estado`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ estado: nuevoEstado })
+        });
+
+        const data = await respuesta.json();
+
+        if (!respuesta.ok) {
+          alert("❌ " + (data.error || "Error al cambiar estado"));
+          return;
+        }
+
+        alert(data.mensaje);
+        cargarPedidos();
+      } catch (error) {
+        console.error("❌ Error:", error);
+        alert("❌ No se pudo cambiar el estado");
+      }
+    }
+
+    async function eliminarPedido(id) {
+      if (!confirm(`¿Estás seguro de eliminar el pedido #${id}?`)) return;
+
+      try {
+        const respuesta = await fetch(`${API_URL}/${id}`, {
+          method: "DELETE"
+        });
+
+        const data = await respuesta.json();
+
+        if (!respuesta.ok) {
+          alert("❌ " + (data.error || "Error al eliminar"));
+          return;
+        }
+
+        alert(data.mensaje);
+        cargarPedidos();
+      } catch (error) {
+        console.error("❌ Error:", error);
+        alert("❌ No se pudo eliminar el pedido");
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      cargarProductos();
+      cargarPedidos();
+    });
+  </script>
+
+</body>
+</html>
+
+

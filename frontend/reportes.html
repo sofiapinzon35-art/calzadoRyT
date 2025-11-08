@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Módulo de Reportes - Calzado RyT</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+  <style>
+    :root{--accent:#2b6cb0;--muted:#6b7280}
+    body{font-family:Inter,system-ui,Arial;margin:0;background:#f7fafc;color:#111}
+    header{background:var(--accent);color:white;padding:16px 24px}
+    .container{display:flex;gap:16px;padding:18px;max-width:1400px;margin:18px auto}
+    aside{width:320px;background:white;padding:16px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.06)}
+    main{flex:1;background:white;padding:16px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.06)}
+    h2{margin:0 0 12px 0;font-size:18px}
+    select,input[type="date"],button{padding:8px;border:1px solid #e2e8f0;border-radius:6px;width:100%}
+    .btn {background:var(--accent);color:#fff;border:none;padding:10px 12px;border-radius:6px;cursor:pointer;font-weight:500}
+    .btn:hover{opacity:0.9}
+    .btn.secondary{background:#4a5568}
+    .inline-buttons{display:flex;gap:8px;flex-wrap:wrap}
+    .inline-buttons button{flex:1}
+    #chartContainer{height:400px;margin-top:20px}
+    table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
+    th,td{padding:10px;border-bottom:1px solid #e6eef7;text-align:left}
+    th{background:#f8fafc;font-weight:600}
+    .small{font-size:13px;color:var(--muted);margin-bottom:8px;display:block}
+    .message{padding:12px;background:#fff3cd;border:1px solid #ffeeba;border-radius:6px;margin-top:12px}
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:20px}
+    .stat-card{background:#f8fafc;padding:16px;border-radius:8px;border:1px solid #e2e8f0}
+    .stat-value{font-size:24px;font-weight:bold;color:var(--accent)}
+    .stat-label{font-size:13px;color:var(--muted);margin-top:4px}
+    .back-link{display:inline-block;color:white;text-decoration:none;margin-top:8px;font-size:14px}
+    .back-link:hover{text-decoration:underline}
+  </style>
+</head>
+<body>
+  <header>
+    <strong>Módulo de Reportes - Calzado RyT</strong>
+    <div class="small" style="color:#e2e8f0">Genera informes y gráficas de ventas por producto, cliente o fechas. Exporta en PDF o CSV.</div>
+    <a href="dashboard.html" class="back-link">← Volver al menú</a>
+  </header>
+
+  <div class="container">
+    <aside>
+      <h2>Filtros</h2>
+      <div class="small">Selecciona los parámetros del informe</div>
+
+      <div style="margin-top:16px">
+        <label class="small">Producto</label>
+        <select id="selProducto">
+          <option value="">-- Todos los productos --</option>
+        </select>
+      </div>
+
+      <div style="margin-top:16px">
+        <label class="small">Cliente</label>
+        <select id="selCliente">
+          <option value="">-- Todos los clientes --</option>
+        </select>
+      </div>
+
+      <div style="margin-top:16px">
+        <label class="small">Fecha desde</label>
+        <input id="dateFrom" type="date"/>
+      </div>
+
+      <div style="margin-top:16px">
+        <label class="small">Fecha hasta</label>
+        <input id="dateTo" type="date"/>
+      </div>
+
+      <div style="margin-top:20px">
+        <label class="small">Tipo de vista</label>
+        <div class="inline-buttons">
+          <button id="btnGrafica" class="btn">📊 Gráfica</button>
+          <button id="btnTabla" class="btn secondary">📋 Tabla</button>
+        </div>
+      </div>
+
+      <div style="margin-top:16px">
+        <button id="btnGenerar" class="btn" style="width:100%">🔍 Generar Informe</button>
+      </div>
+
+      <hr style="margin:20px 0;border:none;border-top:1px solid #e2e8f0">
+
+      <div style="margin-top:16px">
+        <label class="small">Exportar datos</label>
+        <div class="inline-buttons">
+          <button id="btnExportCSV" class="btn secondary">📄 CSV</button>
+          <button id="btnExportPDF" class="btn secondary">📕 PDF</button>
+        </div>
+      </div>
+    </aside>
+
+    <main>
+      <!-- Estadísticas generales -->
+      <div id="statsContainer" class="stats-grid"></div>
+
+      <!-- Área de resultados -->
+      <div id="resultArea">
+        <div id="chartContainer">
+          <canvas id="chartCanvas"></canvas>
+        </div>
+        <div id="tableContainer" style="display:none">
+          <h3 style="margin-top:0">Detalle de Ventas</h3>
+          <div style="overflow-x:auto">
+            <table id="resultTable">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Categoría</th>
+                  <th>Cliente</th>
+                  <th>Fecha</th>
+                  <th>Cantidad</th>
+                  <th>Precio Unit.</th>
+                  <th>Subtotal</th>
+                  <th>Total Venta</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="emptyMsg" class="message" style="display:none">No hay datos para los filtros seleccionados.</div>
+      </div>
+    </main>
+  </div>
+
+<script>
+let currentView = 'chart';
+const apiBase = 'http://localhost:3000/api/reportes';
+let chartInstance = null;
+
+// =============================
+// 🔹 Cargar estadísticas generales
+// =============================
+async function loadStats(){
+  try{
+    const res = await fetch(apiBase + '/stats');
+    if(!res.ok) return;
+    const data = await res.json();
+    
+    const container = document.getElementById('statsContainer');
+    container.innerHTML = `
+      <div class="stat-card">
+        <div class="stat-value">${data.totalVentas}</div>
+        <div class="stat-label">Total de Ventas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">$${parseFloat(data.ingresosTotales).toLocaleString()}</div>
+        <div class="stat-label">Ingresos Totales</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">${data.productoMasVendido?.producto || 'N/A'}</div>
+        <div class="stat-label">Producto Más Vendido (${data.productoMasVendido?.cantidad || 0} uds.)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">${data.mejorCliente?.cliente || 'N/A'}</div>
+        <div class="stat-label">Mejor Cliente (${data.mejorCliente?.compras || 0} compras)</div>
+      </div>
+    `;
+  }catch(e){
+    console.error('Error cargando estadísticas:', e);
+  }
+}
+
+// =============================
+// 🔹 Cargar filtros
+// =============================
+async function loadFilters(){
+  try{
+    const res = await fetch(apiBase + '/filters');
+    if(!res.ok) throw new Error('Error al cargar filtros');
+    const data = await res.json();
+    populateSelect('selProducto', data.productos, 'id','nombre');
+    populateSelect('selCliente', data.clientes, 'id','nombre');
+  }catch(e){
+    console.error(e);
+    alert('Error al cargar filtros');
+  }
+}
+
+function populateSelect(selId, items, valField, textField){
+  const sel = document.getElementById(selId);
+  items.forEach(it=>{
+    const o = document.createElement('option');
+    o.value = it[valField];
+    o.textContent = it[textField];
+    sel.appendChild(o);
+  });
+}
+
+// =============================
+// 🔹 Generar reporte
+// =============================
+async function generar(tipo='chart'){
+  showMessage(false);
+  toggleContainers(tipo);
+  
+  const params = new URLSearchParams();
+  const producto = document.getElementById('selProducto').value;
+  const cliente = document.getElementById('selCliente').value;
+  const from = document.getElementById('dateFrom').value;
+  const to = document.getElementById('dateTo').value;
+  
+  if(producto) params.append('producto', producto);
+  if(cliente) params.append('cliente', cliente);
+  if(from) params.append('from', from);
+  if(to) params.append('to', to);
+  params.append('format', tipo);
+
+  try{
+    const res = await fetch(apiBase + '/report?' + params.toString());
+    if(!res.ok) throw new Error('Error al obtener datos');
+    const json = await res.json();
+    
+    if(!json || !json.data || json.data.length===0){
+      showMessage(true,'No hay datos para los filtros seleccionados.');
+      return;
+    }
+    
+    if(tipo==='table') renderTable(json.data);
+    else renderChart(json.data, json.labels, json.seriesLabel || 'Ventas');
+  }catch(err){
+    console.error(err);
+    showMessage(true,'Ocurrió un error al generar el informe.');
+  }
+}
+
+// =============================
+// 🔹 Mostrar/Ocultar contenedores
+// =============================
+function toggleContainers(view){
+  currentView = view;
+  document.getElementById('chartContainer').style.display = (view==='chart') ? 'block' : 'none';
+  document.getElementById('tableContainer').style.display = (view==='table') ? 'block' : 'none';
+}
+
+function showMessage(show, text=''){
+  document.getElementById('emptyMsg').style.display = show ? 'block' : 'none';
+  document.getElementById('emptyMsg').textContent = text;
+}
+
+// =============================
+// 🔹 Render tabla
+// =============================
+function renderTable(rows){
+  const tbody = document.querySelector('#resultTable tbody');
+  tbody.innerHTML = '';
+  rows.forEach(r=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${r.producto || ''}</td>
+      <td>${r.categoria || ''}</td>
+      <td>${r.cliente || ''}</td>
+      <td>${r.fecha || ''}</td>
+      <td>${r.cantidad || 0}</td>
+      <td>$${r.precio_unitario || 0}</td>
+      <td>$${r.subtotal || 0}</td>
+      <td>$${r.total_venta || 0}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  toggleContainers('table');
+}
+
+// =============================
+// 🔹 Render gráfica
+// =============================
+function renderChart(data, labels, seriesLabel='Ventas'){
+  const ctx = document.getElementById('chartCanvas').getContext('2d');
+  if(chartInstance) chartInstance.destroy();
+  
+  chartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels || data.map(d=>d.label),
+      datasets: [{
+        label: seriesLabel,
+        data: data.map(d=>d.value ?? 0),
+        backgroundColor: '#2b6cb0',
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: true },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return seriesLabel + ': ' + context.parsed.y.toLocaleString();
+            }
+          }
+        }
+      },
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+  toggleContainers('chart');
+}
+
+// =============================
+// 🔹 Exportar CSV
+// =============================
+async function exportCSV(){
+  const params = new URLSearchParams();
+  const producto = document.getElementById('selProducto').value;
+  const cliente = document.getElementById('selCliente').value;
+  const from = document.getElementById('dateFrom').value;
+  const to = document.getElementById('dateTo').value;
+  
+  if(producto) params.append('producto', producto);
+  if(cliente) params.append('cliente', cliente);
+  if(from) params.append('from', from);
+  if(to) params.append('to', to);
+  params.append('format', 'table');
+
+  try{
+    const res = await fetch(apiBase + '/report?' + params.toString());
+    const json = await res.json();
+    
+    if(!json || !json.data || json.data.length===0){ 
+      alert('No hay datos para exportar'); 
+      return; 
+    }
+    
+    const rows = json.data;
+    const header = Object.keys(rows[0]);
+    const csv = [header.join(',')].concat(
+      rows.map(r=>header.map(h=>`"${(r[h] ?? '').toString().replace(/"/g,'""')}"`).join(','))
+    ).join('\n');
+    
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; 
+    a.download = 'reporte_ventas_' + new Date().toISOString().split('T')[0] + '.csv';
+    document.body.appendChild(a); 
+    a.click(); 
+    a.remove();
+    URL.revokeObjectURL(url);
+    
+    alert('✅ Reporte exportado correctamente');
+  }catch(e){ 
+    console.error(e); 
+    alert('Error al exportar CSV'); 
+  }
+}
+
+// =============================
+// 🔹 Exportar PDF
+// =============================
+function exportPDF(){
+  const el = document.getElementById('resultArea');
+  const opt = {
+    margin: 10,
+    filename: 'reporte_ventas_' + new Date().toISOString().split('T')[0] + '.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+  };
+  html2pdf().set(opt).from(el).save();
+  alert('✅ PDF generado correctamente');
+}
+
+// =============================
+// 🔹 Event listeners
+// =============================
+document.getElementById('btnGenerar').addEventListener('click', ()=>generar(currentView));
+document.getElementById('btnTabla').addEventListener('click', ()=>generar('table'));
+document.getElementById('btnGrafica').addEventListener('click', ()=>generar('chart'));
+document.getElementById('btnExportCSV').addEventListener('click', exportCSV);
+document.getElementById('btnExportPDF').addEventListener('click', exportPDF);
+
+// =============================
+// 🔹 Inicializar
+// =============================
+document.addEventListener('DOMContentLoaded', () => {
+  loadFilters();
+  loadStats();
+  generar('chart'); // Cargar vista inicial
+});
+</script>
+</body>
+</html>
+
+
+
+
+

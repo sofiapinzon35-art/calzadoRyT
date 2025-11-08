@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Inventario - Calzado RyT</title>
+  <style>
+    :root {
+      --accent: #2b6cb0;
+      --danger: #e53e3e;
+      --success: #38a169;
+      --warning: #dd6b20;
+      --muted: #6b7280;
+      --border: #e2e8f0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f7fafc;
+      color: #1a202c;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--accent) 0%, #1e40af 100%);
+      color: white;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    header h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    header .subtitle {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .back-link {
+      display: inline-block;
+      color: white;
+      text-decoration: none;
+      margin-top: 12px;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .back-link:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 40px auto;
+      padding: 0 24px;
+    }
+
+    .alert {
+      background: #fed7d7;
+      border-left: 4px solid var(--danger);
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      animation: slideDown 0.3s ease-out;
+    }
+
+    .alert-title {
+      font-weight: 600;
+      color: #742a2a;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .alert-list {
+      list-style: none;
+      padding-left: 0;
+      color: #742a2a;
+    }
+
+    .alert-list li {
+      padding: 4px 0;
+      padding-left: 24px;
+      position: relative;
+    }
+
+    .alert-list li::before {
+      content: "⚠️";
+      position: absolute;
+      left: 0;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #2d3748;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 2px 8px rgba(43, 108, 176, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: #2557a7;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(43, 108, 176, 0.4);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #2f855a;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #c53030;
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 13px;
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    thead {
+      background: #f7fafc;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    th {
+      text-align: left;
+      padding: 14px 16px;
+      font-weight: 600;
+      color: #4a5568;
+      border-bottom: 2px solid var(--border);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    tbody tr {
+      transition: background-color 0.2s;
+    }
+
+    tbody tr:hover {
+      background: #f7fafc;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge-success {
+      background: #c6f6d5;
+      color: #22543d;
+    }
+
+    .badge-warning {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .badge-danger {
+      background: #fed7d7;
+      color: #742a2a;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+
+    .empty-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.3s;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 28px;
+      cursor: pointer;
+      color: var(--muted);
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s;
+    }
+
+    .close-btn:hover {
+      background: #f7fafc;
+      color: #1a202c;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: #4a5568;
+      margin-bottom: 8px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
+      transition: all 0.3s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.1);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 16px;
+        margin: 24px auto;
+      }
+
+      .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .actions {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .actions button {
+        width: 100%;
+      }
+
+      header h1 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>📦 Gestión de Inventario</h1>
+    <div class="subtitle">Administra y controla tu stock de productos</div>
+    <a href="dashboard.html" class="back-link">← Volver al menú</a>
+  </header>
+
+  <div class="container">
+    <!-- Alertas de stock bajo -->
+    <div id="alertasStock"></div>
+
+    <!-- Tabla de productos -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">
+          <span>📋</span>
+          Lista de Productos
+        </h2>
+        <button class="btn btn-primary" onclick="descargarReporte()">
+          📥 Descargar CSV
+        </button>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Descripción</th>
+              <th>Talla</th>
+              <th>Color</th>
+              <th>Categoría</th>
+              <th>Precio</th>
+              <th>Stock</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaProductos">
+            <tr>
+              <td colspan="8">
+                <div class="empty-state">
+                  <div class="empty-icon">⏳</div>
+                  <p>Cargando productos...</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de edición -->
+  <div id="modalEditar" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">✏️ Editar Producto</h3>
+        <button class="close-btn" onclick="cerrarModal()">&times;</button>
+      </div>
+
+      <form id="formEditar">
+        <input type="hidden" id="edit_id">
+
+        <div class="form-group">
+          <label>Nombre</label>
+          <input type="text" id="edit_nombre" required>
+        </div>
+
+        <div class="form-group">
+          <label>Descripción</label>
+          <input type="text" id="edit_descripcion" required>
+        </div>
+
+        <div class="form-group">
+          <label>Talla</label>
+          <input type="text" id="edit_talla" required>
+        </div>
+
+        <div class="form-group">
+          <label>Color</label>
+          <input type="text" id="edit_color" required>
+        </div>
+
+        <div class="form-group">
+          <label>Categoría</label>
+          <input type="text" id="edit_categoria" required>
+        </div>
+
+        <div class="form-group">
+          <label>Precio</label>
+          <input type="number" id="edit_precio" step="0.01" required>
+        </div>
+
+        <div class="form-group">
+          <label>Cantidad</label>
+          <input type="number" id="edit_cantidad" min="0" required>
+        </div>
+
+        <div class="btn-group">
+          <button type="submit" class="btn btn-success">✓ Guardar Cambios</button>
+          <button type="button" class="btn btn-danger" onclick="cerrarModal()">✕ Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "http://localhost:3000/api/productos";
+
+    // =============================
+    // 🔹 Cargar productos
+    // =============================
+    async function cargarProductos() {
+      try {
+        const respuesta = await fetch(API_URL);
+        const productos = await respuesta.json();
+
+        const tabla = document.getElementById("tablaProductos");
+
+        if (productos.length === 0) {
+          tabla.innerHTML = `
+            <tr>
+              <td colspan="8">
+                <div class="empty-state">
+                  <div class="empty-icon">📦</div>
+                  <p>No hay productos en el inventario</p>
+                </div>
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        tabla.innerHTML = "";
+
+        productos.forEach((p) => {
+          let stockBadge = '';
+          if (p.cantidad === 0) {
+            stockBadge = '<span class="badge badge-danger">Agotado</span>';
+          } else if (p.cantidad < 5) {
+            stockBadge = '<span class="badge badge-warning">Bajo</span>';
+          } else {
+            stockBadge = '<span class="badge badge-success">Normal</span>';
+          }
+
+          const fila = `
+            <tr>
+              <td><strong>${p.nombre}</strong></td>
+              <td>${p.descripcion}</td>
+              <td>${p.talla}</td>
+              <td>${p.color}</td>
+              <td>${p.categoria || '-'}</td>
+              <td>$${parseFloat(p.precio).toLocaleString()}</td>
+              <td>${p.cantidad} ${stockBadge}</td>
+              <td>
+                <div class="actions">
+                  <button class="btn btn-success btn-sm" onclick="abrirModalEditar(${p.id_producto})">
+                    ✏️ Editar
+                  </button>
+                  <button class="btn btn-danger btn-sm" onclick="eliminarProducto(${p.id_producto})">
+                    🗑️ Eliminar
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `;
+          tabla.innerHTML += fila;
+        });
+
+        verificarAlertas(productos);
+      } catch (error) {
+        console.error("Error cargando productos:", error);
+        document.getElementById("tablaProductos").innerHTML = `
+          <tr>
+            <td colspan="8">
+              <div class="empty-state">
+                <div class="empty-icon">❌</div>
+                <p>Error al cargar productos</p>
+              </div>
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    // =============================
+    // 🔹 Abrir modal de edición
+    // =============================
+    async function abrirModalEditar(id) {
+      try {
+        const respuesta = await fetch(`${API_URL}/${id}`);
+        const producto = await respuesta.json();
+
+        document.getElementById("edit_id").value = producto.id_producto;
+        document.getElementById("edit_nombre").value = producto.nombre;
+        document.getElementById("edit_descripcion").value = producto.descripcion;
+        document.getElementById("edit_talla").value = producto.talla;
+        document.getElementById("edit_color").value = producto.color;
+        document.getElementById("edit_categoria").value = producto.categoria || '';
+        document.getElementById("edit_precio").value = producto.precio;
+        document.getElementById("edit_cantidad").value = producto.cantidad;
+
+        document.getElementById("modalEditar").classList.add("active");
+      } catch (error) {
+        console.error("Error:", error);
+        alert("❌ Error al cargar producto");
+      }
+    }
+
+    // =============================
+    // 🔹 Guardar edición
+    // =============================
+    document.getElementById("formEditar").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const id = document.getElementById("edit_id").value;
+      const productoActualizado = {
+        nombre: document.getElementById("edit_nombre").value.trim(),
+        descripcion: document.getElementById("edit_descripcion").value.trim(),
+        talla: document.getElementById("edit_talla").value.trim(),
+        color: document.getElementById("edit_color").value.trim(),
+        categoria: document.getElementById("edit_categoria").value.trim(),
+        precio: parseFloat(document.getElementById("edit_precio").value),
+        cantidad: parseInt(document.getElementById("edit_cantidad").value)
+      };
+
+      try {
+        const respuesta = await fetch(`${API_URL}/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(productoActualizado)
+        });
+
+        if (!respuesta.ok) throw new Error("Error al actualizar");
+
+        alert("✅ Producto actualizado correctamente");
+        cerrarModal();
+        cargarProductos();
+      } catch (error) {
+        console.error("Error:", error);
+        alert("❌ No se pudo actualizar el producto");
+      }
+    });
+
+    // =============================
+    // 🔹 Eliminar producto
+    // =============================
+    async function eliminarProducto(id) {
+      if (!confirm("¿Estás seguro de eliminar este producto? Esta acción no se puede deshacer.")) return;
+
+      try {
+        const respuesta = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+
+        if (!respuesta.ok) throw new Error("Error al eliminar");
+
+        alert("🗑️ Producto eliminado correctamente");
+        cargarProductos();
+      } catch (error) {
+        console.error("Error:", error);
+        alert("❌ No se pudo eliminar el producto");
+      }
+    }
+
+    // =============================
+    // 🔔 Verificar alertas de stock
+    // =============================
+    function verificarAlertas(productos) {
+      const alertas = productos.filter(p => p.cantidad < 5);
+      const contenedor = document.getElementById("alertasStock");
+      contenedor.innerHTML = "";
+
+      if (alertas.length > 0) {
+        contenedor.innerHTML = `
+          <div class="alert">
+            <div class="alert-title">
+              <span>⚠️</span>
+              Hay ${alertas.length} producto(s) con stock bajo o agotado
+            </div>
+            <ul class="alert-list">
+              ${alertas.map(p => `<li><strong>${p.nombre}</strong> - ${p.descripcion} (${p.cantidad} unidades)</li>`).join("")}
+            </ul>
+          </div>
+        `;
+      }
+    }
+
+    // =============================
+    // 📦 Descargar reporte CSV
+    // =============================
+    async function descargarReporte() {
+      try {
+        const respuesta = await fetch(API_URL);
+        const productos = await respuesta.json();
+
+        let csv = "ID,Nombre,Descripción,Talla,Color,Categoría,Precio,Cantidad\n";
+        productos.forEach(p => {
+          csv += `${p.id_producto},"${p.nombre}","${p.descripcion}","${p.talla}","${p.color}","${p.categoria || ''}",${p.precio},${p.cantidad}\n`;
+        });
+
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `inventario_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+
+        alert("✅ Reporte descargado correctamente");
+      } catch (error) {
+        console.error("Error:", error);
+        alert("❌ Error al descargar reporte");
+      }
+    }
+
+    // =============================
+    // 🔹 Cerrar modal
+    // =============================
+    function cerrarModal() {
+      document.getElementById("modalEditar").classList.remove("active");
+    }
+
+    // Cerrar modal al hacer clic fuera
+    document.getElementById("modalEditar").addEventListener("click", (e) => {
+      if (e.target.id === "modalEditar") {
+        cerrarModal();
+      }
+    });
+
+    // Cargar productos al iniciar
+    document.addEventListener("DOMContentLoaded", cargarProductos);
+  </script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+

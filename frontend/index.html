@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inicio de Sesión - Calzado RyT</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .login-container {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      width: 100%;
+      max-width: 420px;
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .logo-container {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .logo-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 40px;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    h1 {
+      color: #2d3748;
+      font-size: 28px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: #718096;
+      font-size: 14px;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 25px;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+      color: #a0aec0;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px 14px 14px 45px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      background: #f7fafc;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    input::placeholder {
+      color: #a0aec0;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      color: white;
+      font-weight: 600;
+      font-size: 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .footer-text {
+      text-align: center;
+      margin-top: 25px;
+      color: #718096;
+      font-size: 13px;
+    }
+
+    .error-message {
+      background: #fed7d7;
+      color: #c53030;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      display: none;
+      animation: shake 0.5s;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+      20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+
+    .loading {
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    .loading::after {
+      content: "";
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      top: 50%;
+      left: 50%;
+      margin-left: -8px;
+      margin-top: -8px;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .login-container {
+        padding: 30px 25px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      .logo-icon {
+        width: 70px;
+        height: 70px;
+        font-size: 35px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <div class="logo-container">
+      <div class="logo-icon">👟</div>
+      <h1>Calzado RyT</h1>
+      <div class="subtitle">Sistema de Gestión</div>
+    </div>
+
+    <div id="errorMessage" class="error-message"></div>
+
+    <form id="loginForm">
+      <div class="input-group">
+        <span class="input-icon">👤</span>
+        <input type="text" id="nombre" placeholder="Nombre de usuario" required autocomplete="username">
+      </div>
+
+      <div class="input-group">
+        <span class="input-icon">🔒</span>
+        <input type="password" id="contrasena" placeholder="Contraseña" required autocomplete="current-password">
+      </div>
+
+      <button type="submit" id="loginBtn">Iniciar sesión</button>
+    </form>
+
+    <div class="footer-text">
+      © 2025 Calzado RyT. Todos los derechos reservados.
+    </div>
+  </div>
+
+  <script>
+    const errorMessageEl = document.getElementById("errorMessage");
+    const loginBtn = document.getElementById("loginBtn");
+
+    function showError(message) {
+      errorMessageEl.textContent = message;
+      errorMessageEl.style.display = "block";
+      setTimeout(() => {
+        errorMessageEl.style.display = "none";
+      }, 4000);
+    }
+
+    document.getElementById("loginForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const nombre = document.getElementById("nombre").value.trim();
+      const contrasena = document.getElementById("contrasena").value.trim();
+
+      // Validación básica
+      if (!nombre || !contrasena) {
+        showError("⚠️ Por favor, completa todos los campos");
+        return;
+      }
+
+      // Mostrar estado de carga
+      loginBtn.classList.add("loading");
+      loginBtn.textContent = "Iniciando sesión...";
+      loginBtn.disabled = true;
+
+      try {
+        const res = await fetch("http://localhost:3000/api/usuarios/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nombre, contrasena })
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.usuario) {
+          localStorage.setItem("usuario", JSON.stringify(data.usuario));
+          
+          // Animación de éxito
+          loginBtn.textContent = "✓ ¡Bienvenido!";
+          loginBtn.style.background = "linear-gradient(135deg, #48bb78 0%, #38a169 100%)";
+          
+          setTimeout(() => {
+            window.location.href = "dashboard.html";
+          }, 500);
+        } else {
+          showError(data.mensaje || "❌ Usuario o contraseña incorrectos");
+          resetButton();
+        }
+      } catch (error) {
+        showError("❌ Error al conectar con el servidor. Verifica tu conexión.");
+        console.error("Error:", error);
+        resetButton();
+      }
+    });
+
+    function resetButton() {
+      loginBtn.classList.remove("loading");
+      loginBtn.textContent = "Iniciar sesión";
+      loginBtn.disabled = false;
+    }
+
+    // Limpiar error al escribir
+    document.getElementById("nombre").addEventListener("input", () => {
+      errorMessageEl.style.display = "none";
+    });
+
+    document.getElementById("contrasena").addEventListener("input", () => {
+      errorMessageEl.style.display = "none";
+    });
+  </script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+

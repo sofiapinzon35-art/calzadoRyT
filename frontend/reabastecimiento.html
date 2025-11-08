@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo de Reabastecimiento - Calzado RyT</title>
+  <style>
+    :root {
+      --accent: #2b6cb0;
+      --danger: #e53e3e;
+      --warning: #dd6b20;
+      --success: #38a169;
+      --muted: #6b7280;
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f7fafc;
+      color: #1a202c;
+    }
+    
+    header {
+      background: var(--accent);
+      color: white;
+      padding: 20px 24px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    header h1 { font-size: 24px; margin-bottom: 8px; }
+    header .subtitle { font-size: 14px; opacity: 0.9; }
+    .back-link {
+      display: inline-block;
+      color: white;
+      text-decoration: none;
+      margin-top: 12px;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+    .back-link:hover { text-decoration: underline; }
+    
+    .container { max-width: 1400px; margin: 24px auto; padding: 0 24px; }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .stat-value {
+      font-size: 28px;
+      font-weight: bold;
+      color: var(--accent);
+    }
+    
+    .stat-label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    
+    .tab {
+      padding: 12px 24px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+    }
+    
+    .tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    
+    .card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    
+    .card h3 {
+      font-size: 18px;
+      margin-bottom: 16px;
+      color: #2d3748;
+    }
+    
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    
+    .form-group { display: flex; flex-direction: column; }
+    
+    label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #4a5568;
+      margin-bottom: 6px;
+    }
+    
+    input, select, textarea {
+      padding: 10px 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    
+    textarea { resize: vertical; min-height: 80px; }
+    
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-secondary { background: #718096; color: white; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-success { background: var(--success); color: white; }
+    .btn-sm { padding: 6px 12px; font-size: 13px; }
+    .btn-group { display: flex; gap: 8px; }
+    
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    thead { background: #f7fafc; }
+    th {
+      text-align: left;
+      padding: 12px;
+      font-weight: 600;
+      color: #4a5568;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
+    tr:hover { background: #f7fafc; }
+    
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .badge-warning { background: #fef3c7; color: #92400e; }
+    .badge-danger { background: #fee2e2; color: #991b1b; }
+    .badge-success { background: #d1fae5; color: #065f46; }
+    .badge-secondary { background: #e5e7eb; color: #374151; }
+    
+    .producto-item {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      align-items: center;
+    }
+    
+    .producto-item select { flex: 2; }
+    .producto-item input { flex: 1; }
+    
+    .alert {
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+    
+    .alert-warning {
+      background: #fef3c7;
+      border: 1px solid #fde047;
+      color: #92400e;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>📦 Módulo de Reabastecimiento</h1>
+    <div class="subtitle">Gestiona órdenes de compra y proveedores</div>
+    <a href="dashboard.html" class="back-link">← Volver al menú</a>
+  </header>
+
+  <div class="container">
+    <!-- ESTADÍSTICAS -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="statOrdenes">0</div>
+        <div class="stat-label">Total Órdenes</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statGastado">$0</div>
+        <div class="stat-label">Total Gastado</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statStockBajo">0</div>
+        <div class="stat-label">Productos con Stock Bajo</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statPendientes">0</div>
+        <div class="stat-label">Órdenes Pendientes</div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab active" onclick="cambiarTab('stock-bajo')">⚠️ Stock Bajo</button>
+      <button class="tab" onclick="cambiarTab('crear-orden')">➕ Nueva Orden</button>
+      <button class="tab" onclick="cambiarTab('ordenes')">📋 Órdenes</button>
+      <button class="tab" onclick="cambiarTab('proveedores')">🏭 Proveedores</button>
+    </div>
+
+    <!-- TAB: STOCK BAJO -->
+    <div id="tab-stock-bajo" class="tab-content active">
+      <div class="card">
+        <h3>⚠️ Productos con Stock Bajo (menos de 10 unidades)</h3>
+        <div class="alert alert-warning" id="alertaStock" style="display:none;">
+          <strong>¡Atención!</strong> Hay productos que necesitan reabastecimiento urgente.
+        </div>
+        <div id="tablaStockBajo"></div>
+      </div>
+    </div>
+
+    <!-- TAB: CREAR ORDEN -->
+    <div id="tab-crear-orden" class="tab-content">
+      <div class="card">
+        <h3>➕ Crear Nueva Orden de Reabastecimiento</h3>
+        <form id="formOrden">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Proveedor *</label>
+              <select id="proveedor" required>
+                <option value="">Selecciona un proveedor</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="margin: 20px 0;">
+            <label style="display:block; margin-bottom:10px;"><strong>Productos de la orden:</strong></label>
+            <div id="listaProductosOrden"></div>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="agregarProductoOrden()">+ Agregar producto</button>
+          </div>
+
+          <div class="form-group">
+            <label>Observaciones</label>
+            <textarea id="observaciones" placeholder="Notas adicionales..."></textarea>
+          </div>
+
+          <div class="btn-group" style="margin-top:20px;">
+            <button type="submit" class="btn btn-primary">Crear Orden</button>
+            <button type="button" class="btn btn-secondary" onclick="limpiarFormularioOrden()">Limpiar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- TAB: ÓRDENES -->
+    <div id="tab-ordenes" class="tab-content">
+      <div class="card">
+        <h3>📋 Historial de Órdenes de Reabastecimiento</h3>
+        <div id="tablaOrdenes"></div>
+      </div>
+    </div>
+
+    <!-- TAB: PROVEEDORES -->
+    <div id="tab-proveedores" class="tab-content">
+      <div class="card">
+        <h3>🏭 Gestión de Proveedores</h3>
+        <form id="formProveedor" style="margin-bottom:24px;">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Nombre *</label>
+              <input type="text" id="prov_nombre" placeholder="Ej: Distribuidora Nike" required>
+            </div>
+            <div class="form-group">
+              <label>Teléfono</label>
+              <input type="text" id="prov_telefono" placeholder="3001234567">
+            </div>
+            <div class="form-group">
+              <label>Correo</label>
+              <input type="email" id="prov_correo" placeholder="ventas@proveedor.com">
+            </div>
+            <div class="form-group">
+              <label>Dirección</label>
+              <input type="text" id="prov_direccion" placeholder="Calle 100 #15-20">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Agregar Proveedor</button>
+        </form>
+        <div id="tablaProveedores"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "http://localhost:3000/api/reabastecimiento";
+    const API_PRODUCTOS = "http://localhost:3000/api/productos";
+    let productosDisponibles = [];
+    let productosOrden = [];
+
+    // =============================
+    // 🔹 Cambiar tab
+    // =============================
+    function cambiarTab(tabId) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      
+      event.target.classList.add('active');
+      document.getElementById('tab-' + tabId).classList.add('active');
+    }
+
+    // =============================
+    // 🔹 Cargar estadísticas
+    // =============================
+    async function cargarEstadisticas() {
+      try {
+        const res = await fetch(API_URL + '/stats');
+        const data = await res.json();
+        
+        document.getElementById('statOrdenes').textContent = data.totalOrdenes;
+        document.getElementById('statGastado').textContent = '$' + parseFloat(data.totalGastado).toLocaleString();
+        document.getElementById('statStockBajo').textContent = data.productosStockBajo;
+        document.getElementById('statPendientes').textContent = data.ordenesPendientes;
+
+        if (data.productosStockBajo > 0) {
+          document.getElementById('alertaStock').style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+
+    // =============================
+    // 🔹 Stock bajo
+    // =============================
+    async function cargarStockBajo() {
+      try {
+        const res = await fetch(API_URL + '/stock-bajo');
+        const productos = await res.json();
+
+        const container = document.getElementById('tablaStockBajo');
+
+        if (productos.length === 0) {
+          container.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px;">✅ Todos los productos tienen stock suficiente</p>';
+          return;
+        }
+
+        let tabla = '<table><thead><tr><th>Producto</th><th>Stock Actual</th><th>Precio</th><th>Acciones</th></tr></thead><tbody>';
+
+        productos.forEach(p => {
+          tabla += `
+            <tr>
+              <td>${p.producto_completo}</td>
+              <td><span class="badge badge-danger">${p.cantidad} unidades</span></td>
+              <td>$${parseFloat(p.precio).toLocaleString()}</td>
+              <td><button class="btn btn-primary btn-sm" onclick="crearOrdenRapida(${p.id_producto})">Reabastecer</button></td>
+            </tr>
+          `;
+        });
+
+        tabla += '</tbody></table>';
+        container.innerHTML = tabla;
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+
+    function crearOrdenRapida(idProducto) {
+      cambiarTab('crear-orden');
+      document.querySelectorAll('.tab')[1].click();
+      // Aquí puedes pre-llenar el producto
+    }
+
+    // =============================
+    // 🔹 Proveedores
+    // =============================
+    async function cargarProveedores() {
+      try {
+        const res = await fetch(API_URL + '/proveedores');
+        const proveedores = await res.json();
+
+        // Llenar select
+        const select = document.getElementById('proveedor');
+        select.innerHTML = '<option value="">Selecciona un proveedor</option>';
+        proveedores.forEach(p => {
+          const option = document.createElement('option');
+          option.value = p.id_proveedor;
+          option.textContent = p.nombre;
+          select.appendChild(option);
+        });
+
+        // Tabla
+        const container = document.getElementById('tablaProveedores');
+        if (proveedores.length === 0) {
+          container.innerHTML = '<p style="color:var(--muted);padding:20px;text-align:center;">No hay proveedores registrados</p>';
+          return;
+        }
+
+        let tabla = '<table><thead><tr><th>Nombre</th><th>Teléfono</th><th>Correo</th><th>Dirección</th></tr></thead><tbody>';
+        proveedores.forEach(p => {
+          tabla += `<tr><td><strong>${p.nombre}</strong></td><td>${p.telefono||'-'}</td><td>${p.correo||'-'}</td><td>${p.direccion||'-'}</td></tr>`;
+        });
+        tabla += '</tbody></table>';
+        container.innerHTML = tabla;
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+
+    document.getElementById('formProveedor').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const datos = {
+        nombre: document.getElementById('prov_nombre').value.trim(),
+        telefono: document.getElementById('prov_telefono').value.trim(),
+        correo: document.getElementById('prov_correo').value.trim(),
+        direccion: document.getElementById('prov_direccion').value.trim()
+      };
+
+      try {
+        const res = await fetch(API_URL + '/proveedores', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(datos)
+        });
+        const data = await res.json();
+        alert(data.mensaje);
+        document.getElementById('formProveedor').reset();
+        cargarProveedores();
+      } catch (error) {
+        alert('Error al crear proveedor');
+      }
+    });
+
+    // =============================
+    // 🔹 Productos disponibles
+    // =============================
+    async function cargarProductosDisponibles() {
+      try {
+        const res = await fetch(API_PRODUCTOS);
+        productosDisponibles = await res.json();
+        agregarProductoOrden();
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+
+    function agregarProductoOrden() {
+      const container = document.getElementById('listaProductosOrden');
+      const index = productosOrden.length;
+
+      const div = document.createElement('div');
+      div.className = 'producto-item';
+      div.id = `prod-${index}`;
+
+      const select = document.createElement('select');
+      select.id = `select-${index}`;
+      select.required = true;
+      select.innerHTML = '<option value="">Selecciona un producto</option>';
+      productosDisponibles.forEach(p => {
+        const option = document.createElement('option');
+        option.value = p.id_producto;
+        option.textContent = `${p.nombre} - ${p.descripcion} (${p.talla}, ${p.color})`;
+        select.appendChild(option);
+      });
+
+      const inputCant = document.createElement('input');
+      inputCant.type = 'number';
+      inputCant.id = `cant-${index}`;
+      inputCant.placeholder = 'Cantidad';
+      inputCant.min = '1';
+      inputCant.required = true;
+
+      const inputPrecio = document.createElement('input');
+      inputPrecio.type = 'number';
+      inputPrecio.id = `precio-${index}`;
+      inputPrecio.placeholder = 'Precio compra';
+      inputPrecio.step = '0.01';
+      inputPrecio.required = true;
+
+      const btnEliminar = document.createElement('button');
+      btnEliminar.type = 'button';
+      btnEliminar.textContent = '✕';
+      btnEliminar.className = 'btn btn-danger btn-sm';
+      btnEliminar.onclick = () => eliminarProductoOrden(index);
+
+      div.appendChild(select);
+      div.appendChild(inputCant);
+      div.appendChild(inputPrecio);
+      div.appendChild(btnEliminar);
+      container.appendChild(div);
+
+      productosOrden.push({ index });
+    }
+
+    function eliminarProductoOrden(index) {
+      const elemento = document.getElementById(`prod-${index}`);
+      if (elemento) elemento.remove();
+      productosOrden = productosOrden.filter(p => p.index !== index);
+    }
+
+    function limpiarFormularioOrden() {
+      document.getElementById('formOrden').reset();
+      document.getElementById('listaProductosOrden').innerHTML = '';
+      productosOrden = [];
+      agregarProductoOrden();
+    }
+
+    // =============================
+    // 🔹 Crear orden
+    // =============================
+    document.getElementById('formOrden').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const proveedor = document.getElementById('proveedor').value;
+      const observaciones = document.getElementById('observaciones').value.trim();
+
+      const productos = [];
+      for (const item of productosOrden) {
+        const select = document.getElementById(`select-${item.index}`);
+        const cant = document.getElementById(`cant-${item.index}`);
+        const precio = document.getElementById(`precio-${item.index}`);
+
+        if (select && cant && precio && select.value && cant.value && precio.value) {
+          productos.push({
+            id_producto: parseInt(select.value),
+            cantidad: parseInt(cant.value),
+            precio_compra: parseFloat(precio.value)
+          });
+        }
+      }
+
+      if (!proveedor || productos.length === 0) {
+        alert('⚠️ Completa todos los campos');
+        return;
+      }
+
+      try {
+        const res = await fetch(API_URL + '/ordenes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id_proveedor: parseInt(proveedor), productos, observaciones })
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          alert('❌ ' + (data.error || 'Error'));
+          return;
+        }
+
+        alert(`✅ ${data.mensaje}\nTotal: $${data.total.toLocaleString()}`);
+        limpiarFormularioOrden();
+        cargarEstadisticas();
+        cargarOrdenes();
+      } catch (error) {
+        alert('❌ Error al crear orden');
+      }
+    });
+
+    // =============================
+    // 🔹 Órdenes
+    // =============================
+    async function cargarOrdenes() {
+      try {
+        const res = await fetch(API_URL + '/ordenes');
+        const ordenes = await res.json();
+
+        const container = document.getElementById('tablaOrdenes');
+
+        if (ordenes.length === 0) {
+          container.innerHTML = '<p style="color:var(--muted);padding:40px;text-align:center;">No hay órdenes registradas</p>';
+          return;
+        }
+
+        let tabla = '<table><thead><tr><th>ID</th><th>Proveedor</th><th>Productos</th><th>Total</th><th>Fecha</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>';
+
+        ordenes.forEach(o => {
+          const badgeClass = o.estado === 'Recibido' ? 'badge-success' : o.estado === 'Cancelado' ? 'badge-secondary' : 'badge-warning';
+          tabla += `
+            <tr>
+              <td>#${o.id_reabastecimiento}</td>
+              <td>${o.proveedor}</td>
+              <td>${o.productos || 'Sin productos'}</td>
+              <td><strong>$${parseFloat(o.total).toLocaleString()}</strong></td>
+              <td>${new Date(o.fecha_orden).toLocaleDateString()}</td>
+              <td><span class="badge ${badgeClass}">${o.estado}</span></td>
+              <td>
+                ${o.estado === 'Pendiente' ? 
+                  `<button class="btn btn-success btn-sm" onclick="marcarRecibido(${o.id_reabastecimiento})">✓ Recibir</button>
+                   <button class="btn btn-danger btn-sm" onclick="eliminarOrden(${o.id_reabastecimiento})">Eliminar</button>` 
+                  : '-'}
+              </td>
+            </tr>
+          `;
+        });
+
+        tabla += '</tbody></table>';
+        container.innerHTML = tabla;
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+
+    async function marcarRecibido(id) {
+      if (!confirm('¿Confirmar recepción? Esto aumentará el inventario.')) return;
+
+      try {
+        const res = await fetch(`${API_URL}/ordenes/${id}/estado`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ estado: 'Recibido' })
+        });
+
+        const data = await res.json();
+        alert(data.mensaje);
+        cargarOrdenes();
+        cargarEstadisticas();
+        cargarStockBajo();
+      } catch (error) {
+        alert('Error al marcar orden');
+      }
+    }
+
+    async function eliminarOrden(id) {
+      if (!confirm('¿Eliminar esta orden?')) return;
+
+      try {
+        const res = await fetch(`${API_URL}/ordenes/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        alert(data.mensaje);
+        cargarOrdenes();
+        cargarEstadisticas();
+      } catch (error) {
+        alert('Error al eliminar orden');
+      }
+    }
+
+    // =============================
+    // 🔹 Inicializar
+    // =============================
+    document.addEventListener('DOMContentLoaded', () => {
+      cargarEstadisticas();
+      cargarStockBajo();
+      cargarProveedores();
+      cargarProductosDisponibles();
+      cargarOrdenes();
+    });
+  </script>
+
+</body>
+</html>
+
