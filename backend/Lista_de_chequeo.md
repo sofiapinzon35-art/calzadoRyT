@@ -87,7 +87,6 @@ WhatsApp ⬇️
 
 ---
 
-# 💻 3. CÓDIGO COMPLETO – ventas.html
 
 ```html
 <!-- ventas.html – Frontend -->
