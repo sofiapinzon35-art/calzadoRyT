@@ -152,7 +152,7 @@ WhatsApp ⬇️
 </html>
 
 
-/* ventas.css – Estilos básicos */
+<!-- /* ventas.css – Estilos básicos */ -->
 
 /* Estilo general del cuerpo */
 body {
@@ -193,7 +193,7 @@ th {
   background: #f0f0f0;
 }
 
-// ventas.js – Funciones para manejar ventas
+<!-- // ventas.js – Funciones para manejar ventas -->
 
 // Cargar productos en el select
 async function cargarProductos() {
