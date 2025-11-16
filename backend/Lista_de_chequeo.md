@@ -84,114 +84,179 @@ WhatsApp ⬇️
 | 11 | Pedro   | 2025-11-14  | $240,000  | Botas café (38) x2   
 
 
+
+---
+
+# 💻 3. CÓDIGO COMPLETO – ventas.html
+
+```html
+<!-- ventas.html – Frontend -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Registro de Ventas</title>
-
-<style>
-    body { font-family: Arial; padding: 20px; }
-    input, select { padding: 6px; margin: 5px 0; width: 250px; }
-    button { padding: 8px 15px; margin-top: 10px; cursor: pointer; }
-    table { margin-top:20px; width: 100%; border-collapse: collapse; }
-    table, th, td { border: 1px solid #444; }
-    th, td { padding: 8px; text-align: left; }
-    h2 { margin-top: 30px; }
-</style>
-
+  <meta charset="UTF-8">
+  <title>Ventas</title>
+  <link rel="stylesheet" href="ventas.css">
 </head>
+
 <body>
 
-<h2>Registrar Venta</h2>
+  <h1>Registrar Venta</h1>
 
-<label>Cliente:</label><br>
-<input id="cliente" type="text"><br>
+  <!-- Formulario de registro -->
+  <form id="formVenta">
 
-<label>Producto:</label><br>
-<select id="producto">
-    <option value="Converse blanca (36)">Converse blanca talla 36</option>
-    <option value="Botas café (38)">Botas café talla 38</option>
-</select><br>
+    <!-- Nombre del cliente -->
+    <label>Cliente:</label>
+    <input type="text" id="cliente" required>
 
-<label>Cantidad:</label><br>
-<input id="cantidad" type="number" min="1" value="1"><br>
+    <!-- Productos cargados desde backend -->
+    <label>Producto:</label>
+    <select id="id_producto" required></select>
 
-<label>Canal:</label><br>
-<select id="canal">
-    <option>WhatsApp</option>
-    <option>Instagram</option>
-    <option>Tienda física</option>
-</select><br>
+    <!-- Cantidad -->
+    <label>Cantidad:</label>
+    <input type="number" id="cantidad" min="1" required>
 
-<button onclick="registrarVenta()">Registrar Venta</button>
+    <!-- Canal de venta -->
+    <label>Canal:</label>
+    <select id="canal">
+      <option value="Tienda Física">Tienda Física</option>
+      <option value="Instagram">Instagram</option>
+      <option value="WhatsApp">WhatsApp</option>
+      <option value="Facebook">Facebook</option>
+      <option value="Página Web">Página Web</option>
+    </select>
 
-<h2>Lista de Ventas</h2>
+    <button type="submit">Registrar Venta</button>
+  </form>
 
-<table id="tablaVentas">
-    <tr>
+  <hr>
+
+  <!-- Tabla de ventas -->
+  <h2>Lista de Ventas</h2>
+  <table id="tablaVentas">
+    <thead>
+      <tr>
         <th>ID</th>
         <th>Cliente</th>
         <th>Fecha</th>
         <th>Total</th>
         <th>Productos</th>
-    </tr>
-    <tr>
-        <td>12</td>
-        <td>Ana</td>
-        <td>2025-11-14</td>
-        <td>$120000</td>
-        <td>Converse blanca (36) x1</td>
-    </tr>
-    <tr>
-        <td>11</td>
-        <td>Pedro</td>
-        <td>2025-11-14</td>
-        <td>$240000</td>
-        <td>Botas café (38) x2</td>
-    </tr>
-</table>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
-<script>
-let idActual = 13;
-
-function registrarVenta() {
-    let cliente = document.getElementById("cliente").value;
-    let producto = document.getElementById("producto").value;
-    let cantidad = parseInt(document.getElementById("cantidad").value);
-    let canal = document.getElementById("canal").value;
-
-    if (cliente === "" || cantidad < 1) {
-        alert("Por favor llene todos los campos.");
-        return;
-    }
-
-    let precio = (producto.includes("Converse")) ? 120000 : 120000; // puedes cambiar precios aquí
-    let total = precio * cantidad;
-    let fecha = new Date().toISOString().split("T")[0];
-
-    let tabla = document.getElementById("tablaVentas");
-
-    let fila = `
-        <tr>
-            <td>${idActual}</td>
-            <td>${cliente}</td>
-            <td>${fecha}</td>
-            <td>$${total}</td>
-            <td>${producto} x${cantidad}</td>
-        </tr>
-    `;
-
-    tabla.insertAdjacentHTML("beforeend", fila);
-
-    idActual++;
-
-    document.getElementById("cliente").value = "";
-    document.getElementById("cantidad").value = 1;
-}
-</script>
-
+  <script src="ventas.js"></script>
 </body>
 </html>
 
 
+/* ventas.css – Estilos básicos */
+
+/* Estilo general del cuerpo */
+body {
+  font-family: Arial, sans-serif;
+  margin: 30px;
+}
+
+/* Formulario */
+form {
+  display: grid;
+  gap: 10px;
+  width: 300px;
+  margin-bottom: 25px;
+}
+
+/* Botón */
+button {
+  padding: 8px;
+  background: #1e88e5;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Tabla */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 8px;
+}
+
+th {
+  background: #f0f0f0;
+}
+
+// ventas.js – Funciones para manejar ventas
+
+// Cargar productos en el select
+async function cargarProductos() {
+  const res = await fetch("/productos");
+  const productos = await res.json();
+
+  const select = document.getElementById("id_producto");
+
+  productos.forEach(p => {
+    const opt = document.createElement("option");
+    opt.value = p.id_producto;
+    opt.textContent = `${p.nombre} - ${p.descripcion} (${p.talla}, ${p.color})`;
+    select.appendChild(opt);
+  });
+}
+
+// Cargar ventas en la tabla
+async function cargarVentas() {
+  const res = await fetch("/ventas");
+  const ventas = await res.json();
+
+  const tbody = document.querySelector("#tablaVentas tbody");
+  tbody.innerHTML = "";
+
+  ventas.forEach(v => {
+    const fila = document.createElement("tr");
+
+    fila.innerHTML = `
+      <td>${v.id_venta}</td>
+      <td>${v.nombre_cliente}</td>
+      <td>${v.fecha_venta}</td>
+      <td>$${v.total}</td>
+      <td>${v.productos}</td>
+    `;
+
+    tbody.appendChild(fila);
+  });
+}
+
+// Enviar la venta al backend
+document.getElementById("formVenta").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const venta = {
+    cliente: document.getElementById("cliente").value,
+    id_producto: document.getElementById("id_producto").value,
+    cantidad: document.getElementById("cantidad").value,
+    canal: document.getElementById("canal").value
+  };
+
+  const res = await fetch("/ventas", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(venta)
+  });
+
+  const data = await res.json();
+  alert(data.mensaje || data.error);
+
+  cargarVentas();
+});
+
+// Ejecución inicial
+cargarProductos();
+cargarVentas();
